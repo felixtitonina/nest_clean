@@ -18,4 +18,4 @@ import { Project } from './projects/entities/project.entity';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

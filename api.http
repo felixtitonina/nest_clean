@@ -2,7 +2,7 @@ GET http://localhost:3000/projects
 
 ###
 
-GET http://localhost:3000/projects/1
+GET http://localhost:3000/projects/c1ebb154-5188-4be9-b70e-1e660717beff
 
 ###
 
@@ -11,5 +11,6 @@ Content-Type: application/json
 
 {
     "name": "projeto 1",
-    "description": "description 1"
+    "description": "description 1",
+    "started_at": "2020-01-01"
 }
