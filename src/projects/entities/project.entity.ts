@@ -45,5 +45,26 @@ export class Project {
   ) {
     Object.assign(this, props);
     this.id = id ?? crypto.randomUUID();
+
+    if (props?.started_at) {
+      this.start(props.started_at);
+    }
+  }
+
+  start(started_at: Date) {
+    // started_at
+    if (this.status === ProjectStatus.Active) {
+      throw new Error('Projeto já iniciado.');
+    }
+    if (this.status == ProjectStatus.Completed) {
+      throw new Error('Projeto já completo.');
+    }
+
+    if (this.status == ProjectStatus.Cancelled) {
+      throw new Error('Projeto já cancelado.');
+    }
+
+    this.started_at = started_at;
+    this.status = ProjectStatus.Active;
   }
 }

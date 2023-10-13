@@ -70,6 +70,24 @@ export class ProjectsService {
       project.cancelled_at = updateProjectDto.cancelled_at;
       project.status = ProjectStatus.Cancelled;
     }
+    // finalizar projeto
+    if (updateProjectDto.finished_at) {
+      if (project.status == ProjectStatus.Completed) {
+        throw new Error('Projeto não pode ser finalizado.');
+      }
+
+      if (project.status == ProjectStatus.Cancelled) {
+        throw new Error('Projeto cancelado não pode ser finalizado.');
+      }
+
+      if (updateProjectDto.finished_at < project.started_at) {
+        throw new Error('Projeto não pode ser finalizado antes de ser inicializada.');
+      }
+
+      project.finished_at = updateProjectDto.finished_at;
+      project.status = ProjectStatus.Completed;
+    }
+    this.projectRepo.save(project);
   }
 
   remove(id: string) {
