@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 export class ProjectsService {
   constructor(
     @InjectRepository(Project)
-    private ProjectRepo: Repository<Project>,
+    private projectRepo: Repository<Project>,
   ) {}
 
   create(createProjectDto: CreateProjectDto) {
@@ -18,22 +18,63 @@ export class ProjectsService {
     if (createProjectDto.started_at) {
       project.status = ProjectStatus.Active;
     }
-    return this.ProjectRepo.save(project);
+    return this.projectRepo.save(project);
   }
 
   findAll() {
-    return this.ProjectRepo.find();
+    return this.projectRepo.find();
   }
 
   findOne(id: string) {
-    return this.ProjectRepo.findOneOrFail({ where: { id } });
+    return this.projectRepo.findOneOrFail({ where: { id } });
   }
 
-  update(id: string, updateProjectDto: UpdateProjectDto) {
-    return `This action updates a #${id} project`;
+  async update(id: string, updateProjectDto: UpdateProjectDto) {
+    const project = await this.projectRepo.findOneOrFail({
+      where: { id },
+    });
+    updateProjectDto.name && (project.name = updateProjectDto.name);
+    updateProjectDto.description && (project.description = updateProjectDto.description);
+
+    // started_at
+    if (updateProjectDto.started_at) {
+      if (project.status === ProjectStatus.Active) {
+        throw new Error('Projeto já iniciado.');
+      }
+      if (project.status == ProjectStatus.Completed) {
+        throw new Error('Projeto já completo.');
+      }
+
+      if (project.status == ProjectStatus.Cancelled) {
+        throw new Error('Projeto já cancelado.');
+      }
+
+      project.started_at = updateProjectDto.started_at;
+      project.status = ProjectStatus.Active;
+    }
+
+    // cancelled_at
+    if (updateProjectDto.cancelled_at) {
+      if (project.status == ProjectStatus.Completed) {
+        throw new Error('Projeto não pode ser cancelado.');
+      }
+
+      if (project.status == ProjectStatus.Cancelled) {
+        throw new Error('Projeto já está cancelado.');
+      }
+
+      if (updateProjectDto.cancelled_at < project.started_at) {
+        throw new Error('Projeto não pode ser cancelado antes de ser inicializada.');
+      }
+
+      project.cancelled_at = updateProjectDto.cancelled_at;
+      project.status = ProjectStatus.Cancelled;
+    }
   }
 
   remove(id: string) {
     return `This action removes a #${id} project`;
   }
 }
+
+// 1 04 17
